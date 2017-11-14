@@ -1,0 +1,122 @@
+
+Project 7: Apply Chain-code algorithm to a connected component image
+	to obtain the chain codes of connected components in the image. 
+	     
+
+**************************************
+Language: C++
+*************************************
+
+I. Input argv[1]: You are to run your chain code program ** two times **.
+
+	  1) First, test your program using the chainCode_data1 for the first time. 
+		(There is only one cc in this data.)
+		
+	  2) Second, use the result of the connected components image (with header information)
+	     from the result of your connected component project
+	****
+	Your hard copy should include both test runs in argv[2] and argv[3], 
+	but, with only one cover page and source code.
+        ****
+  	
+II. Outputs: For each run, you use two output files: // Use argv[2] and argv[3].
+
+  - argv[2] -- the result of the chain-codes of the connected components in the input image.
+ 
+          The format of the chain-code file is given below:
+
+          The first text line is the input header, then follows by one chain-code per  text line.
+
+          Each chain-code of the object has the following format:
+          
+	  rowPosition colPosition label dir1 dir2 dir3 .... 
+	
+  - argv[3] -- for debugging output.
+
+
+*******************************
+III. Data structure:
+*******************************
+ - ImageProcessing class
+
+	friend of chainCode class
+
+	- numRows (int)
+	- numCols (int)
+	- minVal (int) 
+	- maxVal (int) // this should be the largest label of the connected component.
+	
+	- imageAry (int **) a 2D array, need to dynamically allocate at run time
+			of size numRows + 2 by numCols + 2.
+	
+	- methods:
+	- constructor(...)
+		- need to dynamically allocate firstAry and secondAry 
+		- assign values to numRows,..., etc.
+ 	- zeroFramed  
+	- loadImage // Read from the input file onto imageAry  	
+		    // the first pixel of input image is loaded at imageAry[1][1]
+	
+	- prettyPrint
+
+  	
+  - chainCode class
+	- pixel class (or struct)
+		- rowPosition (int) 
+		- colPosition (int)
+
+	- firstNoneZero (pixel)
+	- label (int)
+
+	- lastZeroTable int [8]
+	- neighborTable [8][2] // look up table for p(i,j)'s 8 neighbor's row and col positions
+	- lastZeroDir (int) // from P
+	- nextDir (int) // from Q
+
+	- currPixel (pixel)  // P
+	- nextPixel (pixel)  // Q
+	- chainDir (int) // the direction rom P to Q
+	
+	- methods:
+	- constructor(s) 
+
+	- findNextComponent  // scan the image to find the next connected component in the image, 
+			// returns the first none zero pixel 
+			  
+	- findNextNoneZeroNeighbor // with respect to the current pixel, P(i,j), from the
+			// the last zero neight, find the first 
+			// none zero of P's 8 neighbors, call it Q, then
+			// returns the direction from  P to Q.
+	- etc.
+
+*******************************
+III. Algorithms 
+*******************************
+  
+step 0: - read the image header
+	- dynamically allocate the imageAry
+
+step 1: 1.1 zeroFrame imageAry
+	1.2 read from the input onto imageAry, begin at imageAry[1][1]
+	1.3 pretty print the imageAry to argv[3]
+
+step 2: nextCC <-- findNextComponent // nextCC is a chainCode object
+	output nextCC's rowPostion, colPosition, label to argv[2] 
+	lastZeroDir <-- 4
+	currPixel <-- firstNoneZero of nextCC
+	
+step 3: nextDir <-- lastZeroDir + 1
+	chainDir <-- findNextNoneZeroNeighbor (nextDir)
+	output chainDir to argv[2]	
+	lastZeroDir <-- lookup lastZeroTable[chainDir]
+	currPixel <-- lookup neighborTable[chainDir]
+  
+step 4: repeat step 3 until currPixel is matched with firstNoneZero of nextCC
+        // end of one chain code of a connected component
+
+step 5: repeat step 2 to step 4 until no more connected componenets in the
+	input image.
+
+step 6: close all files
+
+
